@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Club Finder"/>
+  <title>Club Finder</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:#f2f2f7;color:#1c1c1e;min-height:100vh;padding:env(safe-area-inset-top,16px) 16px env(safe-area-inset-bottom,40px);max-width:430px;margin:0 auto}
+    h1{font-size:22px;font-weight:700;letter-spacing:-.3px;margin:14px 0 16px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#e5e5ea;border-radius:12px;padding:3px;margin-bottom:20px}
+    .tab{padding:8px 0;font-size:14px;border-radius:9px;cursor:pointer;border:none;background:transparent;color:#636366;font-weight:500}
+    .tab.active{background:#fff;color:#1c1c1e;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+    .section-label{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+    .dist-wrap{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .dist-input{font-size:36px;font-weight:700;border:none;background:transparent;color:#1c1c1e;width:160px;outline:none}
+    .dist-input::placeholder{color:#c7c7cc}
+    .dist-unit{font-size:17px;font-weight:500;color:#8e8e93}
+    .card{background:#fff;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .opt{padding:10px 4px;font-size:12px;font-weight:500;line-height:1.3;border-radius:10px;cursor:pointer;text-align:center;background:#f2f2f7;color:#636366;border:2px solid transparent;width:100%}
+    .opt .sub{font-size:10px;color:#aaa;display:block;margin-top:2px}
+    .opt.active{background:#1c1c1e;color:#fff;border-color:#1c1c1e;box-shadow:0 0 0 3px rgba(28,28,30,.2)}
+    .opt.active .sub{color:rgba(255,255,255,.55)}
+    .spacer{visibility:hidden;pointer-events:none}
+    .adj-bar{text-align:center;font-size:13px;font-weight:600;padding:9px 0;margin-bottom:10px;border-radius:10px;display:none}
+    .adj-bar.pos{background:#d1fae5;color:#065f46;display:block}
+    .adj-bar.neg{background:#fee2e2;color:#991b1b;display:block}
+    .btn-row{display:grid;grid-template-columns:3fr 1fr;gap:8px;margin-bottom:20px}
+    .btn-find{padding:15px 0;font-size:16px;font-weight:700;border-radius:14px;cursor:pointer;background:#1c1c1e;color:#fff;border:none}
+    .btn-reset{padding:15px 0;font-size:14px;border-radius:14px;cursor:pointer;background:#fff;color:#636366;border:2px solid #e5e5ea;font-weight:500}
+    .result-card{border-radius:16px;padding:16px 18px;margin-bottom:10px}
+    .result-card.main{background:#1c1c1e}
+    .result-card.alt{background:#fff;border:2px solid #e5e5ea}
+    .res-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+    .main .res-label{color:rgba(255,255,255,.45)}
+    .alt .res-label{color:#8e8e93}
+    .res-club{font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1;margin-bottom:12px}
+    .main .res-club{color:#fff}
+    .alt .res-club{color:#1c1c1e}
+    .res-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .res-stat{border-radius:10px;padding:9px 12px}
+    .main .res-stat{background:rgba(255,255,255,.1)}
+    .alt .res-stat{background:#f2f2f7}
+    .res-stat-lbl{font-size:10px;margin-bottom:2px}
+    .main .res-stat-lbl{color:rgba(255,255,255,.45)}
+    .alt .res-stat-lbl{color:#8e8e93}
+    .res-stat-val{font-size:19px;font-weight:700}
+    .main .res-stat-val{color:#fff}
+    .alt .res-stat-val{color:#1c1c1e}
+    .res-gap{font-size:14px;font-weight:700;margin-top:2px}
+    .err{font-size:14px;color:#dc2626;text-align:center;padding:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    thead tr{border-bottom:1.5px solid #e5e5ea}
+    th{text-align:left;padding:8px 0;font-weight:600;color:#8e8e93;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+    th:not(:first-child){text-align:right}
+    tbody tr{border-bottom:1px solid #f2f2f7}
+    td{padding:11px 0;font-size:14px}
+    td.c{text-align:right;padding-right:10px;font-weight:600}
+    td.t{text-align:right;color:#8e8e93}
+    .edit-inp{width:56px;padding:4px 6px;font-size:13px;text-align:right;border:1.5px solid #e5e5ea;border-radius:8px;background:#f2f2f7}
+    .bag-btns{display:grid;gap:8px;margin-top:14px}
+    .btn-edit{padding:13px 0;font-size:14px;font-weight:600;border-radius:14px;cursor:pointer;background:#fff;color:#1c1c1e;border:2px solid #e5e5ea}
+    .btn-save{padding:13px 0;font-size:14px;font-weight:700;border-radius:14px;cursor:pointer;background:#1c1c1e;color:#fff;border:none}
+    .btn-cancel{padding:13px 0;font-size:14px;border-radius:14px;cursor:pointer;background:#fff;color:#636366;border:2px solid #e5e5ea}
+    .two-col{grid-template-columns:1fr 1fr!important}
+  </style>
+</head>
+<body>
+<h1>⛳ Club Finder</h1>
+<div class="tabs">
+  <button class="tab active" onclick="setTab('find')">Club Finder</button>
+  <button class="tab" onclick="setTab('bag')">My Bag</button>
+</div>
+
+<div id="page-find">
+  <div class="section-label">Distance to pin</div>
+  <div class="dist-wrap">
+    <input class="dist-input" type="number" inputmode="numeric" placeholder="155" id="dist" oninput="clearResult()"/>
+    <span class="dist-unit">yards</span>
+  </div>
+  <div class="section-label">Wind</div>
+  <div class="card"><div class="grid3" id="grid-wind"></div></div>
+  <div class="section-label">Elevation</div>
+  <div class="card"><div class="grid3" id="grid-ele"></div></div>
+  <div class="section-label">Lie</div>
+  <div class="card"><div class="grid3" id="grid-lie"></div></div>
+  <div class="adj-bar" id="adj-bar"></div>
+  <div class="btn-row">
+    <button class="btn-find" onclick="recommend()">Find Club</button>
+    <button class="btn-reset" onclick="resetAll()">Reset</button>
+  </div>
+  <div id="result"></div>
+</div>
+
+<div id="page-bag" style="display:none">
+  <div class="card">
+    <table>
+      <thead><tr><th>Club</th><th style="text-align:right;padding-right:10px">Carry</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody id="bag-body"></tbody>
+    </table>
+  </div>
+  <div class="bag-btns" id="bag-btns"></div>
+</div>
+
+<script>
+const KEY="gcf_chart_v4";
+const BASE=[
+  {club:"Mini Driver",carry:220,total:235},
+  {club:"3 Wood",carry:210,total:225},
+  {club:"7 Wood",carry:195,total:210},
+  {club:"4 Hybrid",carry:180,total:195},
+  {club:"5 Iron",carry:160,total:170},
+  {club:"6 Iron",carry:150,total:160},
+  {club:"7 Iron",carry:140,total:145},
+  {club:"8 Iron",carry:130,total:135},
+  {club:"9 Iron",carry:120,total:125},
+  {club:"Pitching Wedge",carry:110,total:115},
+  {club:"Gap Wedge",carry:100,total:105},
+  {club:"Sand Wedge",carry:85,total:90},
+  {club:"Lob Wedge",carry:70,total:72},
+];
+const WIND=[
+  {v:"none", l:"No Wind",     sub:"calm",          adj:1.00},
+  {v:"li",   l:"Light Into",  sub:"10–20 km/h",    adj:0.93},
+  {v:"si",   l:"Strong Into", sub:"20–30+ km/h",   adj:0.84},
+  {v:"cross",l:"Crosswind",   sub:"any side wind", adj:0.97},
+  {v:"ld",   l:"Light Down",  sub:"10–20 km/h",    adj:1.07},
+  {v:"sd",   l:"Strong Down", sub:"20–30+ km/h",   adj:1.14},
+];
+const ELE=[
+  {v:"flat",l:"Level",        sub:"same height",     adj:1.00},
+  {v:"su",  l:"↑ Small Up",   sub:"~10–20 ft higher",adj:0.96},
+  {v:"lu",  l:"↑↑ Big Up",    sub:"~30+ ft higher",  adj:0.90},
+  {v:"sp",  spacer:true},
+  {v:"sd2", l:"↓ Small Down", sub:"~10–20 ft lower", adj:1.04},
+  {v:"ld2", l:"↓↓ Big Down",  sub:"~30+ ft lower",   adj:1.10},
+];
+const LIE=[
+  {v:"fw",  l:"Fairway",      sub:"clean grass",    adj:1.00},
+  {v:"tee", l:"Tee",          sub:"ball elevated",  adj:1.02},
+  {v:"sand",l:"Sand",         sub:"bunker",         adj:0.88},
+  {v:"gr",  l:"Fluffy Rough", sub:"sitting up",     adj:0.97},
+  {v:"mr",  l:"Mid Rough",    sub:"half buried",    adj:0.91},
+  {v:"br",  l:"Buried Rough", sub:"deep / plugged", adj:0.83},
+];
+
+let chart=(()=>{try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):BASE.map(c=>({...c}))}catch{return BASE.map(c=>({...c}))}})();
+let sel={wind:"none",ele:"flat",lie:"fw"};
+
+function saveChart(){try{localStorage.setItem(KEY,JSON.stringify(chart))}catch{}}
+function getAdj(opts,v){return opts.find(o=>o.v===v)?.adj??1}
+
+function buildGrid(id,opts,key){
+  const el=document.getElementById(id);
+  el.innerHTML="";
+  opts.forEach(o=>{
+    if(o.spacer){const d=document.createElement("div");d.className="opt spacer";el.appendChild(d);return}
+    const b=document.createElement("button");
+    b.className="opt"+(sel[key]===o.v?" active":"");
+    b.innerHTML=o.l+(o.sub?`<span class="sub">${o.sub}</span>`:"");
+    b.onclick=()=>{sel[key]=o.v;clearResult();buildGrid(id,opts,key);updateAdj()};
+    el.appendChild(b);
+  });
+}
+
+function updateAdj(){
+  const w=getAdj(WIND,sel.wind),e=getAdj(ELE,sel.ele),l=getAdj(LIE,sel.lie);
+  const pct=Math.round((w*e*l-1)*100);
+  const bar=document.getElementById("adj-bar");
+  if(pct===0){bar.className="adj-bar";return}
+  bar.textContent=(pct>0?"+":"")+pct+"% — ball goes "+(pct>0?"further":"shorter");
+  bar.className="adj-bar "+(pct>0?"pos":"neg");
+}
+
+function recommend(){
+  const d=parseInt(document.getElementById("dist").value);
+  const el=document.getElementById("result");
+  if(!d||d<50||d>310){el.innerHTML='<div class="err">Enter a valid distance (50–310 yds)</div>';return}
+  const w=getAdj(WIND,sel.wind),e=getAdj(ELE,sel.ele),l=getAdj(LIE,sel.lie);
+  const effDist=Math.round(d/(w*e*l));
+  const scored=chart.map(c=>({...c,diff:Math.abs(c.total-effDist)})).sort((a,b)=>a.diff-b.diff);
+  const best=scored[0],alt=scored[1];
+
+  function renderCard(club,idx){
+    const aT=Math.round(club.total*w*e*l);
+    const gap=aT-d;
+    const gapStr=gap===0?"exact":gap>0?`+${gap} yds (bit long)`:`${gap} yds (bit short)`;
+    const isMain=idx===0;
+    const cls=isMain?"main":"alt";
+    const gapColor=gap===0?(isMain?"#4ade80":"#16a34a"):isMain?"rgba(255,255,255,.8)":"#636366";
+    return `<div class="result-card ${cls}">
+      <div class="res-label">#${idx+1} Club</div>
+      <div class="res-club">${club.club}</div>
+      <div class="res-stats">
+        <div class="res-stat">
+          <div class="res-stat-lbl">Plays like</div>
+          <div class="res-stat-val">${aT} yds</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-stat-lbl">vs your ${d} yds</div>
+          <div class="res-gap" style="color:${gapColor}">${gapStr}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML=renderCard(best,0)+renderCard(alt,1);
+}
+
+function resetAll(){
+  sel={wind:"none",ele:"flat",lie:"fw"};
+  document.getElementById("dist").value="";
+  clearResult();
+  buildGrid("grid-wind",WIND,"wind");
+  buildGrid("grid-ele",ELE,"ele");
+  buildGrid("grid-lie",LIE,"lie");
+  updateAdj();
+}
+function clearResult(){document.getElementById("result").innerHTML=""}
+
+function setTab(t){
+  document.getElementById("page-find").style.display=t==="find"?"block":"none";
+  document.getElementById("page-bag").style.display=t==="bag"?"block":"none";
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",(i===0&&t==="find")||(i===1&&t==="bag")));
+  if(t==="bag")renderBag(false);
+}
+
+function renderBag(edit){
+  const tbody=document.getElementById("bag-body");
+  tbody.innerHTML=chart.map((c,i)=>`
+    <tr>
+      <td>${c.club}</td>
+      <td class="c">${edit?`<input class="edit-inp" type="number" value="${c.carry}" onchange="chart[${i}].carry=+this.value||0">`:c.carry}</td>
+      <td class="t">${edit?`<input class="edit-inp" type="number" value="${c.total}" onchange="chart[${i}].total=+this.value||0">`:c.total}</td>
+    </tr>`).join("");
+  const btns=document.getElementById("bag-btns");
+  if(edit){
+    btns.className="bag-btns two-col";
+    btns.innerHTML=`<button class="btn-save" onclick="saveChart();renderBag(false)">Save</button><button class="btn-cancel" onclick="renderBag(false)">Cancel</button>`;
+  }else{
+    btns.className="bag-btns";
+    btns.innerHTML=`<button class="btn-edit" onclick="renderBag(true)">Edit Yardages</button>`;
+  }
+}
+
+buildGrid("grid-wind",WIND,"wind");
+buildGrid("grid-ele",ELE,"ele");
+buildGrid("grid-lie",LIE,"lie");
+</script>
+</body>
+</html>
